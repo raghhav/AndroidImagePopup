@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.squareup.picasso.Picasso;
@@ -195,6 +196,9 @@ public class ImagePopup extends ImageView {
     public void initiatePopupWithGlide(String imageUrl) {
 
         try {
+            
+            ProgressBar progressBar = new ProgressBar((Activity) getContext(), null, android.R.attr.progressBarStyleHorizontal);
+            progressBar.setVisibility(View.VISIBLE);
 
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
 
@@ -206,6 +210,19 @@ public class ImagePopup extends ImageView {
 
             Glide.with(context)
                     .load(imageUrl)
+                    .listener(new RequestListener<Drawable>() {
+                @Override
+                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                    progressBar.setVisibility(View.GONE);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                    progressBar.setVisibility(View.GONE);
+                    return false;
+                }
+            })
                     .into(imageView);
 
         } catch (Exception e) {
@@ -223,20 +240,25 @@ public class ImagePopup extends ImageView {
 
         DisplayMetrics metrics = new DisplayMetrics();
         ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-
+        
+       
         int width = metrics.widthPixels;
         int height = metrics.heightPixels;
 
         if(isFullScreen()) {
-            popupWindow = new PopupWindow(layout, (width), (height), true);
+            {
+                popupWindow = new PopupWindow(layout, (width), (height), true);
+              
+            }
         }else {
             if (windowHeight != 0 || windowWidth != 0) {
                 width = windowWidth;
                 height = windowHeight;
                 popupWindow = new PopupWindow(layout, (width), (height), true);
+               
             } else {
                 popupWindow = new PopupWindow(layout, (int) (width * .8), (int) (height * .6), true);
+                
             }
         }
 
